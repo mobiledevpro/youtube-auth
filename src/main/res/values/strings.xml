@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">youtube-auth</string>
+
+    <string name="error_client_id_is_empty">Client ID is empty. \nPlease, contact to developer.</string>
 </resources>
