@@ -38,6 +38,7 @@ class AuthUrlHelper {
 
     private static final String PARAM_RESULT_TOKEN = "access_token";
     private static final String PARAM_RESULT_TOKEN_TYPE = "token_type";
+    private static final String PARAM_RESULT_ERROR = "error";
 
     private static AuthUrlHelper sAuthApiHelper;
 
@@ -58,6 +59,12 @@ class AuthUrlHelper {
         return sAuthApiHelper.getToken(url);
     }
 
+    static String findErrors(String url) {
+        if (sAuthApiHelper == null) {
+            sAuthApiHelper = new AuthUrlHelper();
+        }
+        return sAuthApiHelper.checkErrors(url);
+    }
     /**
      * Create URL for get token
      *
@@ -108,5 +115,24 @@ class AuthUrlHelper {
         String tokenType = map.containsKey(PARAM_RESULT_TOKEN_TYPE) ? map.get(PARAM_RESULT_TOKEN_TYPE) + " " : "";
 
         return tokenType + token;
+    }
+
+    /**
+     * Get errors from redirect url if has
+     *
+     * @param redirectUrl Redirect url
+     * @return Token value
+     */
+    private String checkErrors(String redirectUrl) {
+        Uri uri = Uri.parse(redirectUrl);
+        String fragment = uri.getFragment();
+
+        if (TextUtils.isEmpty(fragment)) return "";
+
+        Map<String, String> map = new HashMap<>();
+        String[] paramValueArray = fragment.split("=");
+        map.put(paramValueArray[0], paramValueArray[1]);
+
+        return map.containsKey(PARAM_RESULT_ERROR) ? map.get(PARAM_RESULT_ERROR) : "";
     }
 }

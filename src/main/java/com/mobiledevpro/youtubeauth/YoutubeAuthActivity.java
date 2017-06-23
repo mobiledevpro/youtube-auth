@@ -35,6 +35,7 @@ public class YoutubeAuthActivity extends AppCompatActivity {
     public static final int REQUEST_CODE = 9999;
     public static final String KEY_APP_CLIENT_ID = "key.app.client.id"; //value from google console -> OAuth 2.0 client IDs -> Client ID
     public static final String KEY_RESULT_TOKEN = "key.result.token";
+    public static final String KEY_RESULT_ERROR = "key.result.error";
 
     public static final String KEY_APP_THEME_RES_ID = "key.app.theme.res.id";
     public static final String KEY_APPBAR_TITLE_RES_ID = "key.app.title.res.id";
@@ -194,17 +195,7 @@ public class YoutubeAuthActivity extends AppCompatActivity {
      */
     private void showError(String errMessage) {
         if (TextUtils.isEmpty(errMessage)) return;
-
-        if (mTvError != null) {
-            mTvError.setText(errMessage);
-            mTvError.setVisibility(View.VISIBLE);
-        }
-        if (mProgressBar != null) {
-            mProgressBar.setVisibility(View.GONE);
-        }
-        if (mWebView != null) {
-            mWebView.setVisibility(View.GONE);
-        }
+        setFailedResult(errMessage);
     }
 
 
@@ -217,6 +208,13 @@ public class YoutubeAuthActivity extends AppCompatActivity {
         Intent intent = new Intent();
         intent.putExtra(KEY_RESULT_TOKEN, token);
         setResult(Activity.RESULT_OK, intent);
+        finish();
+    }
+
+    private void setFailedResult(String errMessage) {
+        Intent intent = new Intent();
+        intent.putExtra(KEY_RESULT_ERROR, errMessage);
+        setResult(Activity.RESULT_CANCELED, intent);
         finish();
     }
 
