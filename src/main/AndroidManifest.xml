@@ -11,7 +11,7 @@
         <activity
             android:name=".YoutubeAuthActivity"
             android:configChanges="screenSize|orientation"
-            android:theme="@style/AppTheme.FullScreen"/>
+            android:theme="@style/DefaultAppTheme.FullScreen"/>
 
     </application>
 

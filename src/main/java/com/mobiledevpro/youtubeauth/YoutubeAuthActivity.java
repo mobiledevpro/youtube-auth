@@ -3,9 +3,15 @@ package com.mobiledevpro.youtubeauth;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.DrawableRes;
 import android.support.annotation.Nullable;
+import android.support.annotation.StringRes;
+import android.support.annotation.StyleRes;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
+import android.view.MenuItem;
 import android.view.View;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
@@ -30,29 +36,61 @@ public class YoutubeAuthActivity extends AppCompatActivity {
     public static final String KEY_APP_CLIENT_ID = "key.app.client.id"; //value from google console -> OAuth 2.0 client IDs -> Client ID
     public static final String KEY_RESULT_TOKEN = "key.result.token";
 
+    public static final String KEY_APP_THEME_RES_ID = "key.app.theme.res.id";
+    public static final String KEY_APPBAR_TITLE_RES_ID = "key.app.title.res.id";
+    public static final String KEY_APPBAR_HOME_ICON_RES_ID = "key.app.home.icon.res.id";
+
+    private
+    @StyleRes
+    int mThemeId;
+    private
+    @StringRes
+    int mAppbarTitleResId;
+    private
+    @DrawableRes
+    int mAppbarHomeIconResId;
+
     private String mAppClientId;
     private ProgressBar mProgressBar;
     private WebView mWebView;
     private TextView mTvError;
 
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        Bundle extras = getIntent().getExtras();
+        if (extras != null) {
+            //get client id from intent
+            if (extras.containsKey(KEY_APP_CLIENT_ID)) {
+                mAppClientId = extras.getString(KEY_APP_CLIENT_ID);
+            }
+            //get Theme resources id
+            if (extras.containsKey(KEY_APP_THEME_RES_ID)) {
+                mThemeId = extras.getInt(KEY_APP_THEME_RES_ID, 0);
+                if (mThemeId > 0) {
+                    setTheme(mThemeId);
+                }
+            }
+            //get appbar title
+            if (extras.containsKey(KEY_APPBAR_TITLE_RES_ID)) {
+                mAppbarTitleResId = extras.getInt(KEY_APPBAR_TITLE_RES_ID, 0);
+            }
+            //get home as up indicator icon
+            if (extras.containsKey(KEY_APPBAR_HOME_ICON_RES_ID)) {
+                mAppbarHomeIconResId = extras.getInt(KEY_APPBAR_HOME_ICON_RES_ID, 0);
+            }
+        }
+
         //setup start activity animation
         overridePendingTransition(
                 R.anim.anim_activity_enter_slide_up,
                 android.R.anim.fade_out
         );
 
-        setContentView(R.layout.activity_youtube_auth);
-
+        setContentView(mThemeId > 0 ? R.layout.activity_youtube_auth : R.layout.activity_youtube_auth_fullscreen);
         initView();
-
-        //get client id from intent
-        Bundle extras = getIntent().getExtras();
-        if (extras != null && extras.containsKey(KEY_APP_CLIENT_ID)) {
-            mAppClientId = extras.getString(KEY_APP_CLIENT_ID);
-        }
 
         //check if client id is not empty
         if (TextUtils.isEmpty(mAppClientId)) {
@@ -74,7 +112,35 @@ public class YoutubeAuthActivity extends AppCompatActivity {
         );
     }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                onBackPressed();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+
+    }
+
     private void initView() {
+        //setup actionbar
+        if (mThemeId > 0) {
+            Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+            if (toolbar != null) {
+                setSupportActionBar(toolbar);
+                ActionBar actionBar = getSupportActionBar();
+                if (actionBar != null) {
+                    if (mAppbarTitleResId > 0) actionBar.setTitle(mAppbarTitleResId);
+                    if (mAppbarHomeIconResId > 0) {
+                        actionBar.setDisplayHomeAsUpEnabled(true);
+                        actionBar.setHomeAsUpIndicator(mAppbarHomeIconResId);
+                    }
+                }
+            }
+        }
+
         mWebView = (WebView) findViewById(R.id.web_view);
         mProgressBar = (ProgressBar) findViewById(R.id.progress_bar);
         mTvError = (TextView) findViewById(R.id.tv_error);

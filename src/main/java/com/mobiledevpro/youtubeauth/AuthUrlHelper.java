@@ -30,7 +30,9 @@ class AuthUrlHelper {
 
     private static final String VALUE_RESPONSE_TYPE = "token";
     private static final String VALUE_ACCESS_TYPE = "online";
-    private static final String VALUE_SCOPE = "https://www.googleapis.com/auth/youtube.upload";
+    private static final String VALUE_SCOPE = "https://www.googleapis.com/auth/youtube.upload " +
+            "https://www.googleapis.com/auth/youtube.readonly " +
+            "https://www.googleapis.com/auth/youtube";
     private static final String VALUE_REDIRECT_URI = "http://localhost";
     private static final String VALUE_PROMPT = "select_account";
 
