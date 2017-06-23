@@ -38,6 +38,12 @@ public class YoutubeAuthActivity extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        //setup start activity animation
+        overridePendingTransition(
+                R.anim.anim_activity_enter_slide_up,
+                android.R.anim.fade_out
+        );
+
         setContentView(R.layout.activity_youtube_auth);
 
         initView();
@@ -58,6 +64,15 @@ public class YoutubeAuthActivity extends AppCompatActivity {
         showWebView();
     }
 
+    @Override
+    public void finish() {
+        super.finish();
+        //setup finish activity animation
+        overridePendingTransition(
+                android.R.anim.fade_in,
+                R.anim.anim_activity_exit_slide_down
+        );
+    }
 
     private void initView() {
         mWebView = (WebView) findViewById(R.id.web_view);
