@@ -2,7 +2,6 @@ package com.mobiledevpro.youtubeauth;
 
 import android.app.Activity;
 import android.text.TextUtils;
-import android.util.Log;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
@@ -20,7 +19,7 @@ import android.webkit.WebViewClient;
 class Browser extends WebViewClient {
 
     interface Callbacks {
-        void onGetToken(String token);
+        void onGetAccessCode(String token);
 
         void onError(int errCode, String description);
     }
@@ -37,11 +36,10 @@ class Browser extends WebViewClient {
 
     @Override
     public boolean shouldOverrideUrlLoading(WebView view, String url) {
-        String token = AuthUrlHelper.findToken(url);
-        //if token was found
-        if (!TextUtils.isEmpty(token)) {
+        String accessCode = AuthUrlHelper.findAccessCode(url);
+        if (!TextUtils.isEmpty(accessCode)) {
             if (mCallbacks != null) {
-                mCallbacks.onGetToken(token);
+                mCallbacks.onGetAccessCode(accessCode);
             }
             return false;
         }

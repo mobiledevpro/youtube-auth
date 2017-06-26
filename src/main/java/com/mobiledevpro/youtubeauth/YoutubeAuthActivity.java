@@ -161,8 +161,12 @@ public class YoutubeAuthActivity extends AppCompatActivity {
         mWebView.setWebViewClient(
                 new Browser(this, new Browser.Callbacks() {
                     @Override
-                    public void onGetToken(String token) {
-                        setSuccessResult(token);
+                    public void onGetAccessCode(String accessCode) {
+                        PreferencesHelper.getInstance(getApplicationContext()).setAccessCode(accessCode);
+
+                        // TODO: 26.06.17 request access and refresh tokens
+
+                        setSuccessResult(accessCode);
                     }
 
                     @Override
@@ -185,7 +189,7 @@ public class YoutubeAuthActivity extends AppCompatActivity {
             }
         });
 
-        mWebView.loadUrl(AuthUrlHelper.createUrl(mAppClientId));
+        mWebView.loadUrl(AuthUrlHelper.requestAccessCode(mAppClientId));
     }
 
     /**

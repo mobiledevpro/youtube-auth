@@ -28,7 +28,7 @@ class AuthUrlHelper {
     private static final String PARAM_REDIRECT_URI = "redirect_uri";
     private static final String PARAM_PROMPT = "prompt";
 
-    private static final String VALUE_RESPONSE_TYPE = "token";
+    private static final String VALUE_RESPONSE_TYPE = "code";
     private static final String VALUE_ACCESS_TYPE = "online";
     private static final String VALUE_SCOPE = "https://www.googleapis.com/auth/youtube.upload " +
             "https://www.googleapis.com/auth/youtube.readonly " +
@@ -36,27 +36,28 @@ class AuthUrlHelper {
     private static final String VALUE_REDIRECT_URI = "http://localhost";
     private static final String VALUE_PROMPT = "select_account";
 
-    private static final String PARAM_RESULT_TOKEN = "access_token";
-    private static final String PARAM_RESULT_TOKEN_TYPE = "token_type";
+    // private static final String PARAM_RESULT_TOKEN = "access_token";
+    // private static final String PARAM_RESULT_TOKEN_TYPE = "token_type";
     private static final String PARAM_RESULT_ERROR = "error";
+    private static final String PARAM_RESULT_ACCESS_CODE = "code";
 
     private static AuthUrlHelper sAuthApiHelper;
 
     private AuthUrlHelper() {
     }
 
-    static String createUrl(String appClientId) {
+    static String requestAccessCode(String appClientId) {
         if (sAuthApiHelper == null) {
             sAuthApiHelper = new AuthUrlHelper();
         }
-        return sAuthApiHelper.getUrl(appClientId);
+        return sAuthApiHelper.createUrlForAccessCode(appClientId);
     }
 
-    static String findToken(String url) {
+    static String findAccessCode(String url) {
         if (sAuthApiHelper == null) {
             sAuthApiHelper = new AuthUrlHelper();
         }
-        return sAuthApiHelper.getToken(url);
+        return sAuthApiHelper.getAccessCode(url);
     }
 
     static String findErrors(String url) {
@@ -71,12 +72,13 @@ class AuthUrlHelper {
      * @param clientId Client ID from Google Dev console
      * @return URL
      */
-    private String getUrl(String clientId) {
+    private String createUrlForAccessCode(String clientId) {
         Uri.Builder builder = new Uri.Builder();
         builder.scheme("https")
                 .authority(BASE_URL)
                 .appendPath("o")
                 .appendPath("oauth2")
+                .appendPath("v2")
                 .appendPath("auth")
                 .appendQueryParameter(PARAM_CLIENT_ID, clientId)
                 .appendQueryParameter(PARAM_RESPONSE_TYPE, VALUE_RESPONSE_TYPE)
@@ -88,33 +90,10 @@ class AuthUrlHelper {
         return builder.build().toString();
     }
 
-    /**
-     * Get token from redirect url
-     *
-     * @param redirectUrl Redirect url
-     * @return Token value
-     */
-    private String getToken(String redirectUrl) {
+
+    private String getAccessCode(String redirectUrl) {
         Uri uri = Uri.parse(redirectUrl);
-
-        String fragment = uri.getFragment();
-
-        if (TextUtils.isEmpty(fragment)) return "";
-
-        Map<String, String> map = new HashMap<>();
-        String[] paramValueArray = fragment.split("&");
-        String[] paramArray;
-
-        for (String paramValue : paramValueArray) {
-            paramArray = paramValue.split("=");
-            map.put(paramArray[0], paramArray[1]);
-        }
-
-        //find token in the map
-        String token = map.containsKey(PARAM_RESULT_TOKEN) ? map.get(PARAM_RESULT_TOKEN) : "";
-        String tokenType = map.containsKey(PARAM_RESULT_TOKEN_TYPE) ? map.get(PARAM_RESULT_TOKEN_TYPE) + " " : "";
-
-        return tokenType + token;
+        return uri.getQueryParameter(PARAM_RESULT_ACCESS_CODE);
     }
 
     /**
