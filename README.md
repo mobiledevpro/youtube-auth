@@ -42,3 +42,5 @@ Android Module for Youtube Sign-In with Channel selection.
 
     }
 ```
+
+![youtube-auth](https://user-images.githubusercontent.com/5750211/27538571-507d444c-5a81-11e7-8102-503387e133af.gif)
