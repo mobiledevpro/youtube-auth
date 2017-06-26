@@ -1,7 +1,15 @@
 # youtube-auth
 Android Module for Youtube Sign-In with Channel selection (like Youtube Android App)
 
-Start activity to Sign-In:
+1. Clone or download module.
+2. Import module into project:
+   Android Studio -> File -> New -> Import module -> Select directory with source of downloaded module.
+3. Add module to dependencies in the app level build.gradle:
+   ```
+   compile project(':youtube-auth')
+   ```
+
+4. Start activity to Sign-In:
 ```java
    Intent intent = new Intent(this, YoutubeAuthActivity.class);
    intent.putExtra(YoutubeAuthActivity.KEY_APP_CLIENT_ID, <OAUTH_CLIENT_ID_FROM_GOOGLE_DEV_CONSOLE>);
@@ -11,7 +19,7 @@ Start activity to Sign-In:
    startActivityForResult(intent, YoutubeAuthActivity.REQUEST_CODE);
 ```
 
-Handle result:
+5. Handle result:
 ```java
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
