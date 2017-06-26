@@ -1,5 +1,5 @@
 # youtube-auth
-Android Module for Youtube Sign-In with Channel selection (like Youtube Android App)
+Android Module for Youtube Sign-In with Channel selection.
 
 1. Clone or download module.
 2. Import module into project:
