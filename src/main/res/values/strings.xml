@@ -2,4 +2,5 @@
     <string name="app_name">youtube-auth</string>
 
     <string name="error_client_id_is_empty">Client ID is empty. \nPlease, contact to developer.</string>
+    <string name="error_access_code_empty">Please, sign-in to Youtube.</string>
 </resources>

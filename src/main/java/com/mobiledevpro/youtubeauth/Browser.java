@@ -2,6 +2,7 @@ package com.mobiledevpro.youtubeauth;
 
 import android.app.Activity;
 import android.text.TextUtils;
+import android.util.Log;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
@@ -41,7 +42,7 @@ class Browser extends WebViewClient {
             if (mCallbacks != null) {
                 mCallbacks.onGetAccessCode(accessCode);
             }
-            return false;
+            return true;
         }
 
         String error = AuthUrlHelper.findErrors(url);
@@ -49,7 +50,7 @@ class Browser extends WebViewClient {
             if (mCallbacks != null) {
                 mCallbacks.onError(0, error);
             }
-            return false;
+            return true;
         }
 
         view.loadUrl(url);
