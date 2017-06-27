@@ -2,7 +2,6 @@ package com.mobiledevpro.youtubeauth;
 
 import android.content.Context;
 import android.text.TextUtils;
-import android.util.Log;
 
 import java.util.Date;
 
@@ -46,6 +45,13 @@ public class YoutubeTokenHelper {
         return sHelper;
     }
 
+    /**
+     * Check expiration of access token and refresh if it needed
+     *
+     * @param appContext     Context
+     * @param oldAccessToken Old access token
+     * @param callbacks      Callbacks
+     */
     public void checkAndRefreshAccessTokenAsync(Context appContext,
                                                 String oldAccessToken,
                                                 final YoutubeTokenHelper.ICallbacks callbacks) {
@@ -55,15 +61,20 @@ public class YoutubeTokenHelper {
 
         if (TextUtils.isEmpty(refreshToken)) {
             if (callbacks != null) {
-                callbacks.onFail(appContext.getResources().getString(R.string.error_access_code_empty));
+                callbacks.onFail(appContext.getResources().getString(R.string.error_refresh_token_empty));
+            }
+            return;
+        }
+
+        //check internet connection
+        if (!RestClient.isDeviceOnline(appContext)) {
+            if (callbacks != null) {
+                callbacks.onFail(appContext.getString(R.string.message_check_internet_connection));
             }
             return;
         }
 
         long tokenExpirationTime = preferencesHelper.getAccessTokenExpirationTime();
-
-        Log.d("youtube-auth", "YoutubeTokenHelper.checkAndRefreshAccessTokenAsync(): tokenExpirationTime - " + new Date(tokenExpirationTime).toString());
-        Log.d("youtube-auth", "YoutubeTokenHelper.checkAndRefreshAccessTokenAsync(): current time        - " + new Date().toString());
 
         //check if token is not expired
         long currentTime = new Date().getTime();
@@ -92,6 +103,15 @@ public class YoutubeTokenHelper {
         });
     }
 
+    /**
+     * Get refresh token
+     *
+     * @param appContext Context
+     * @return Token
+     */
+    public String getRefreshToken(Context appContext) {
+        return PreferencesHelper.getInstance(appContext).getRefreshToken();
+    }
 
     /**
      * Revoke token for log out
@@ -104,7 +124,20 @@ public class YoutubeTokenHelper {
 
         String refreshToken = preferencesHelper.getRefreshToken();
 
-        if (TextUtils.isEmpty(refreshToken)) return;
+        if (TextUtils.isEmpty(refreshToken)) {
+            if (callbacks != null) {
+                callbacks.onFail(appContext.getString(R.string.error_token_empty));
+            }
+            return;
+        }
+
+        //check internet connection
+        if (!RestClient.isDeviceOnline(appContext)) {
+            if (callbacks != null) {
+                callbacks.onFail(appContext.getString(R.string.message_check_internet_connection));
+            }
+            return;
+        }
 
         final AccessToken.Revoke.Request request = new AccessToken.Revoke.Request();
         request.build(
@@ -132,6 +165,13 @@ public class YoutubeTokenHelper {
     }
 
 
+    /**
+     * Exchange access code for access token and refresh token
+     *
+     * @param appContext Context
+     * @param accessCode Access code
+     * @param callbacks  Callbacks
+     */
     void exchangeCodeForTokenAsync(final Context appContext,
                                    String accessCode,
                                    final YoutubeTokenHelper.ICallbacks callbacks) {
@@ -181,6 +221,13 @@ public class YoutubeTokenHelper {
         );
     }
 
+    /**
+     * Refresh access token
+     *
+     * @param appContext   Context
+     * @param refreshToken Refresh token
+     * @param callbacks    Callbacks
+     */
     private void refreshAccessTokenAsync(final Context appContext, final String refreshToken, final YoutubeTokenHelper.ICallbacks callbacks) {
 
         final PreferencesHelper preferencesHelper = PreferencesHelper.getInstance(appContext);
@@ -198,6 +245,12 @@ public class YoutubeTokenHelper {
                 new RestClient.ICallBacks() {
                     @Override
                     public void onSuccess(int respCode, Object respBody) {
+                        if (respBody == null) {
+                            if (callbacks != null) {
+                                callbacks.onFail("Please, sign-in");
+                            }
+                            return;
+                        }
                         AccessToken.Refresh.Response response = (AccessToken.Refresh.Response) respBody;
                         String accessToken = response.getAccessToken();
                         long tokenExpirationTime = new Date().getTime() + (response.getExpirationInSeconds() * 1000);
