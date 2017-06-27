@@ -43,4 +43,23 @@ Android Module for Youtube Sign-In with Channel selection.
     }
 ```
 
+6. Revoke access to account (Sign Out)
+
+```java
+YoutubeTokenHelper.getInstance(CLIENT_ID, CLIENT_SECRET).revokeToken(
+                getApplicationContext(),
+                new YoutubeTokenHelper.ICallbacks() {
+                    @Override
+                    public void onSuccess(String accessToken) {
+                        //do something
+                    }
+
+                    @Override
+                    public void onFail(String errMessage) {
+                        Toast.makeText(getApplicationContext(), errMessage, Toast.LENGTH_SHORT).show();
+                    }
+                }
+        );
+```
+
 ![youtube-auth](https://user-images.githubusercontent.com/5750211/27538571-507d444c-5a81-11e7-8102-503387e133af.gif)
