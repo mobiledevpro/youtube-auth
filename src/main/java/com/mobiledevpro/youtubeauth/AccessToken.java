@@ -134,4 +134,25 @@ class AccessToken {
         }
     }
 
+    /**
+     * Revoke token
+     */
+    static class Revoke {
+        static class Request {
+            private static final String PARAM_TOKEN = "token";
+
+            private String refreshToken;
+
+            void build(String refreshToken) {
+                this.refreshToken = refreshToken;
+            }
+
+            Map<String, String> getQueryParams() {
+                Map<String, String> params = new HashMap<>();
+                params.put(PARAM_TOKEN, refreshToken);
+                return params;
+            }
+        }
+    }
+
 }

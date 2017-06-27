@@ -29,7 +29,7 @@ class AuthUrlHelper {
     private static final String PARAM_PROMPT = "prompt";
 
     private static final String VALUE_RESPONSE_TYPE = "code";
-    private static final String VALUE_ACCESS_TYPE = "online";
+    private static final String VALUE_ACCESS_TYPE = "offline";
     private static final String VALUE_SCOPE = "https://www.googleapis.com/auth/youtube.upload " +
             "https://www.googleapis.com/auth/youtube.readonly " +
             "https://www.googleapis.com/auth/youtube";

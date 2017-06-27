@@ -39,43 +39,39 @@ class PreferencesHelper {
     /**
      * Save refresh token
      */
-    void cacheRefreshToken(String refreshToken, String accessToken, long expirationTimeInMs) {
+    void cacheRefreshToken(String refreshToken, long expirationTimeInMs) {
         SharedPreferences.Editor editor = mMainPrefs.edit();
-        editor.putString(KEY_REFRESH_TOKEN + "___" + accessToken.replace(" ", ""), refreshToken);
-        editor.putLong(KEY_ACCESS_TOKEN_EXPIRED_TIME + "___" + accessToken.replace(" ", ""), expirationTimeInMs);
+        editor.putString(KEY_REFRESH_TOKEN, refreshToken);
+        editor.putLong(KEY_ACCESS_TOKEN_EXPIRED_TIME, expirationTimeInMs);
         editor.apply();
     }
 
     /**
      * Get refresh token
      *
-     * @param accessToken Old access token
      * @return Access code
      */
-    String getRefreshToken(String accessToken) {
-        return mMainPrefs.getString(KEY_REFRESH_TOKEN + "___" + accessToken.replaceAll(" ", ""), "");
+    String getRefreshToken() {
+        return mMainPrefs.getString(KEY_REFRESH_TOKEN, "");
     }
 
 
     /**
      * Get saved expiration time for access token
      *
-     * @param accessToken Token
      * @return Time in ms
      */
-    long getAccessTokenExpirationTime(String accessToken) {
-        return mMainPrefs.getLong(KEY_ACCESS_TOKEN_EXPIRED_TIME + "___" + accessToken.replaceAll(" ", ""), 0);
+    long getAccessTokenExpirationTime() {
+        return mMainPrefs.getLong(KEY_ACCESS_TOKEN_EXPIRED_TIME, 0);
     }
 
     /**
      * Clear old token
-     *
-     * @param oldAccessToken Old Token
      */
-    void removeOldAccessToken(String oldAccessToken) {
+    void clearToken() {
         SharedPreferences.Editor editor = mMainPrefs.edit();
-        editor.remove(KEY_REFRESH_TOKEN + "___" + oldAccessToken.replaceAll(" ", ""));
-        editor.remove(KEY_ACCESS_TOKEN_EXPIRED_TIME + "___" + oldAccessToken.replaceAll(" ", ""));
+        editor.remove(KEY_ACCESS_TOKEN_EXPIRED_TIME);
+        editor.remove(KEY_REFRESH_TOKEN);
         editor.apply();
     }
 }

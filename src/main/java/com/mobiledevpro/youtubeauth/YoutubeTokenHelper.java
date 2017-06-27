@@ -51,7 +51,7 @@ public class YoutubeTokenHelper {
                                                 final YoutubeTokenHelper.ICallbacks callbacks) {
 
         PreferencesHelper preferencesHelper = PreferencesHelper.getInstance(appContext);
-        String refreshToken = preferencesHelper.getRefreshToken(oldAccessToken);
+        String refreshToken = preferencesHelper.getRefreshToken();
 
         if (TextUtils.isEmpty(refreshToken)) {
             if (callbacks != null) {
@@ -60,22 +60,19 @@ public class YoutubeTokenHelper {
             return;
         }
 
-        long tokenExpirationTime = preferencesHelper.getAccessTokenExpirationTime(oldAccessToken);
+        long tokenExpirationTime = preferencesHelper.getAccessTokenExpirationTime();
 
         Log.d("youtube-auth", "YoutubeTokenHelper.checkAndRefreshAccessTokenAsync(): tokenExpirationTime - " + new Date(tokenExpirationTime).toString());
         Log.d("youtube-auth", "YoutubeTokenHelper.checkAndRefreshAccessTokenAsync(): current time        - " + new Date().toString());
 
         //check if token is not expired
-        long currentTime = new Date().getTime() + 3600000;
+        long currentTime = new Date().getTime();
         if (currentTime < tokenExpirationTime) {
             if (callbacks != null) {
                 callbacks.onSuccess(oldAccessToken);
             }
             return;
         }
-
-        //clear an old saved token
-        preferencesHelper.removeOldAccessToken(oldAccessToken);
 
         //request a new access token
         refreshAccessTokenAsync(appContext, refreshToken, new ICallbacks() {
@@ -96,6 +93,45 @@ public class YoutubeTokenHelper {
     }
 
 
+    /**
+     * Revoke token for log out
+     *
+     * @param appContext Context
+     * @param callbacks  Callbacks
+     */
+    public void revokeToken(Context appContext, final YoutubeTokenHelper.ICallbacks callbacks) {
+        final PreferencesHelper preferencesHelper = PreferencesHelper.getInstance(appContext);
+
+        String refreshToken = preferencesHelper.getRefreshToken();
+
+        if (TextUtils.isEmpty(refreshToken)) return;
+
+        final AccessToken.Revoke.Request request = new AccessToken.Revoke.Request();
+        request.build(
+                refreshToken
+        );
+
+        RestClient.getAccountGoogleInstance(appContext).revokeTokenAsync(
+                request,
+                new RestClient.ICallBacks() {
+                    @Override
+                    public void onSuccess(int respCode, Object respBody) {
+                        preferencesHelper.clearToken();
+                        callbacks.onSuccess("");
+                    }
+
+                    @Override
+                    public void onFail(String errMessage) {
+                        if (callbacks != null) {
+                            callbacks.onFail(errMessage);
+                        }
+                    }
+                }
+        );
+
+    }
+
+
     void exchangeCodeForTokenAsync(final Context appContext,
                                    String accessCode,
                                    final YoutubeTokenHelper.ICallbacks callbacks) {
@@ -110,7 +146,7 @@ public class YoutubeTokenHelper {
                 mClientSecret
         );
 
-        RestClient.getInstance(appContext).exchangeCodeForTokenAsync(
+        RestClient.getGoogleApiInstance(appContext).exchangeCodeForTokenAsync(
                 request,
                 new RestClient.ICallBacks() {
                     @Override
@@ -124,7 +160,7 @@ public class YoutubeTokenHelper {
                         if (!TextUtils.isEmpty(accessToken)) {
                             if (callbacks != null) {
                                 //cache refresh token for further requests
-                                preferencesHelper.cacheRefreshToken(refreshToken, accessToken, tokenExpirationTime);
+                                preferencesHelper.cacheRefreshToken(refreshToken, tokenExpirationTime);
 
                                 callbacks.onSuccess(accessToken);
                             }
@@ -157,7 +193,7 @@ public class YoutubeTokenHelper {
                 mClientSecret
         );
 
-        RestClient.getInstance(appContext).refreshAccessTokenAsync(
+        RestClient.getGoogleApiInstance(appContext).refreshAccessTokenAsync(
                 request,
                 new RestClient.ICallBacks() {
                     @Override
@@ -169,7 +205,7 @@ public class YoutubeTokenHelper {
                         if (!TextUtils.isEmpty(accessToken)) {
                             if (callbacks != null) {
                                 //cache refresh token for further requests
-                                preferencesHelper.cacheRefreshToken(refreshToken, accessToken, tokenExpirationTime);
+                                preferencesHelper.cacheRefreshToken(refreshToken, tokenExpirationTime);
 
                                 callbacks.onSuccess(accessToken);
                             }

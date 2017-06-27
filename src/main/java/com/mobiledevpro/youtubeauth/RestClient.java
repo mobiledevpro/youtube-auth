@@ -8,6 +8,7 @@ import android.text.TextUtils;
 import java.util.concurrent.TimeUnit;
 
 import okhttp3.OkHttpClient;
+import okhttp3.ResponseBody;
 import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -25,11 +26,13 @@ import retrofit2.converter.gson.GsonConverterFactory;
  */
 
 class RestClient {
-    private static final String BASE_URL = "https://www.googleapis.com";
+    private static final String GOOGLE_API_URL = "https://www.googleapis.com";
+    private static final String ACCOUNT_GOOGLE_URL = "https://accounts.google.com";
 
     private static final int HTTP_TIMEOUT = 25; //in seconds
 
-    private static RestClient sRestClient;
+    private static RestClient sGoogleApiClient;
+    private static RestClient sAccountGoogleClient;
     private IRestClient mApiInterface;
     private Retrofit mRetrofit;
 
@@ -39,7 +42,7 @@ class RestClient {
         void onFail(String errMessage);
     }
 
-    private RestClient(Context appContext) {
+    private RestClient(Context appContext, String url) {
         OkHttpClient.Builder httpClient = new OkHttpClient.Builder();
         httpClient
                 .readTimeout(HTTP_TIMEOUT, TimeUnit.SECONDS)
@@ -57,7 +60,7 @@ class RestClient {
         //<!-- for loggining
 
         Retrofit.Builder builder = new Retrofit.Builder()
-                .baseUrl(BASE_URL)
+                .baseUrl(url)
                 .addConverterFactory(GsonConverterFactory.create());
 
         builder.client(httpClient.build())
@@ -67,12 +70,20 @@ class RestClient {
         mApiInterface = mRetrofit.create(IRestClient.class);
     }
 
-    static synchronized RestClient getInstance(Context appContext) {
-        if (sRestClient == null) {
-            sRestClient = new RestClient(appContext);
+    static synchronized RestClient getGoogleApiInstance(Context appContext) {
+        if (sGoogleApiClient == null) {
+            sGoogleApiClient = new RestClient(appContext, GOOGLE_API_URL);
         }
 
-        return sRestClient;
+        return sGoogleApiClient;
+    }
+
+    static synchronized RestClient getAccountGoogleInstance(Context appContext) {
+        if (sAccountGoogleClient == null) {
+            sAccountGoogleClient = new RestClient(appContext, ACCOUNT_GOOGLE_URL);
+        }
+
+        return sAccountGoogleClient;
     }
 
     void exchangeCodeForTokenAsync(AccessToken.Exchange.Request request, final ICallBacks callBacks) {
@@ -107,6 +118,27 @@ class RestClient {
 
             @Override
             public void onFailure(Call<AccessToken.Refresh.Response> call, Throwable t) {
+                String errMsg = t.getMessage();
+                if (TextUtils.isEmpty(errMsg)) {
+                    errMsg = "Network error";
+                }
+                callBacks.onFail(errMsg);
+            }
+        };
+        call.enqueue(callback);
+    }
+
+    void revokeTokenAsync(final AccessToken.Revoke.Request request, final ICallBacks callBacks) {
+        Call<ResponseBody> call = mApiInterface.revokeToken(request.getQueryParams());
+
+        Callback<ResponseBody> callback = new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                callBacks.onSuccess(response.code(), response.body());
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
                 String errMsg = t.getMessage();
                 if (TextUtils.isEmpty(errMsg)) {
                     errMsg = "Network error";
