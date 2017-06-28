@@ -29,7 +29,7 @@ import android.widget.ProgressBar;
  * #MobileDevPro
  */
 
-class YoutubeAuthActivity extends AppCompatActivity {
+public class YoutubeAuthActivity extends AppCompatActivity {
 
     public static final String KEY_APP_CLIENT_ID = "key.app.client.id"; //value from google console -> OAuth 2.0 client IDs -> Client ID
     public static final String KEY_APP_CLIENT_SECRET = "key.app.client.secret"; //value from google console -> OAuth 2.0 client IDs -> Client Secret
