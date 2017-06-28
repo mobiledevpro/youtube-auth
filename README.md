@@ -9,14 +9,14 @@ Android Module for Youtube Sign-In with Channel selection.
    compile project(':youtube-auth')
    ```
 
-4. Start activity to Sign-In:
+4. Start Sign-In to Youtube:
 ```java
-   Intent intent = new Intent(this, YoutubeAuthActivity.class);
-   intent.putExtra(YoutubeAuthActivity.KEY_APP_CLIENT_ID, <OAUTH_CLIENT_ID_FROM_GOOGLE_DEV_CONSOLE>);
-   intent.putExtra(YoutubeAuthActivity.KEY_APP_THEME_RES_ID, R.style.AppTheme_NoActionBar); //optional
-   intent.putExtra(YoutubeAuthActivity.KEY_APPBAR_TITLE_RES_ID, R.string.app_name_youtube_auth); //optional
-   intent.putExtra(YoutubeAuthActivity.KEY_APPBAR_HOME_ICON_RES_ID, R.drawable.ic_close_24dp); //optional
-   startActivityForResult(intent, YoutubeAuthActivity.REQUEST_CODE);
+   YoutubeAuthManager.getInstance(CLIENT_ID, CLIENT_SECRET).startSignIn(
+                this /*activity or fragment*/,
+                R.style.AppTheme_NoActionBar /*Theme Resource ID (optional)*/,
+                R.string.app_name_youtube_auth /*String Resource ID (optional)*/,
+                R.drawable.ic_close_24dp /*Icon Resource ID (optional)*/
+        );
 ```
 
 5. Handle result:
@@ -27,12 +27,12 @@ Android Module for Youtube Sign-In with Channel selection.
             case YoutubeAuthActivity.REQUEST_CODE:
                 if (resultCode == Activity.RESULT_OK) {
                     //this is a token for using in requests to Youtube Data API
-                    if (data != null && data.getExtras().containsKey(YoutubeAuthActivity.KEY_RESULT_TOKEN)) {
-                        mToken = data.getStringExtra(YoutubeAuthActivity.KEY_RESULT_TOKEN);
+                    if (data != null && data.getExtras().containsKey(YoutubeAuthManager.KEY_SIGN_IN_RESULT_TOKEN)) {
+                        mToken = data.getStringExtra(YoutubeAuthManager.KEY_SIGN_IN_RESULT_TOKEN);
                         Toast.makeText(this, "Success", Toast.LENGTH_SHORT).show();
                     }
                 } else {
-                    String errMessage = data != null ? data.getStringExtra(YoutubeAuthActivity.KEY_RESULT_ERROR) : "Cancelled";
+                    String errMessage = data != null ? data.getStringExtra(YoutubeAuthManager.KEY_SIGN_IN_RESULT_ERROR) : "Cancelled";
                     Toast.makeText(this, errMessage, Toast.LENGTH_SHORT).show();
                 }
                 break;
@@ -43,10 +43,10 @@ Android Module for Youtube Sign-In with Channel selection.
     }
 ```
 
-6. Revoke access to account (Sign Out)
+6. Sign-Out:
 
 ```java
-YoutubeTokenHelper.getInstance(CLIENT_ID, CLIENT_SECRET).revokeToken(
+YoutubeTokenHelper.getInstance(CLIENT_ID, CLIENT_SECRET).signOut(
                 getApplicationContext(),
                 new YoutubeTokenHelper.ICallbacks() {
                     @Override
