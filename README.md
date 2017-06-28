@@ -19,7 +19,7 @@ Android Module for Youtube Sign-In with Channel selection.
         );
 ```
 
-5. Handle result:
+5. Handle Sign-In result:
 ```java
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -62,4 +62,4 @@ YoutubeTokenHelper.getInstance(CLIENT_ID, CLIENT_SECRET).signOut(
         );
 ```
 
-![youtube-auth](https://user-images.githubusercontent.com/5750211/27538571-507d444c-5a81-11e7-8102-503387e133af.gif)
+![youtube-auth](https://user-images.githubusercontent.com/5750211/27631254-a03f9856-5c00-11e7-8bbf-a27dd0b5b3fd.gif)
