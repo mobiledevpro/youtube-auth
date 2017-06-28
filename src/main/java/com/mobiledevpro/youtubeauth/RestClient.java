@@ -10,7 +10,6 @@ import java.util.concurrent.TimeUnit;
 
 import okhttp3.OkHttpClient;
 import okhttp3.ResponseBody;
-import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -52,12 +51,12 @@ class RestClient {
         //когда логирование включено не будет отображаться прогресс загрузки файла!!!
         //for loggining -->
 
-        HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
+      /*  HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
         // set your desired log level
         logging.setLevel(HttpLoggingInterceptor.Level.BODY);
         // add logging as last interceptor
         httpClient.addInterceptor(logging);  // <-- this is the important line!
-
+*/
         //<!-- for loggining
 
         Retrofit.Builder builder = new Retrofit.Builder()
