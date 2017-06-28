@@ -5,6 +5,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.text.TextUtils;
 
+import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
 import okhttp3.OkHttpClient;
@@ -107,6 +108,12 @@ class RestClient {
         call.enqueue(callback);
     }
 
+    /**
+     * Refresh access token (Asynchronously)
+     *
+     * @param request   AccessToken.Refresh.Request
+     * @param callBacks Callbacks
+     */
     void refreshAccessTokenAsync(AccessToken.Refresh.Request request, final ICallBacks callBacks) {
         Call<AccessToken.Refresh.Response> call = mApiInterface.refreshAccessToken(request.getQueryParams());
 
@@ -128,7 +135,32 @@ class RestClient {
         call.enqueue(callback);
     }
 
-    void revokeTokenAsync(final AccessToken.Revoke.Request request, final ICallBacks callBacks) {
+    /**
+     * Refresh access token (Synchronously)
+     *
+     * @param request   AccessToken.Refresh.Request
+     * @param callBacks Callbacks
+     */
+    void refreshAccessTokenSync(AccessToken.Refresh.Request request, final ICallBacks callBacks) {
+        Call<AccessToken.Refresh.Response> call = mApiInterface.refreshAccessToken(request.getQueryParams());
+
+        try {
+            Response<AccessToken.Refresh.Response> response = call.execute();
+            callBacks.onSuccess(response.code(), response.body());
+        } catch (IOException e) {
+            callBacks.onFail("IOException: " + e.getLocalizedMessage());
+        } catch (IllegalArgumentException ee) {
+            callBacks.onFail("IllegalArgumentException: " + ee.getLocalizedMessage());
+        }
+    }
+
+    /**
+     * Revoke access to google account / revoke token (asynchronously)
+     *
+     * @param request   AccessToken.Revoke.Request
+     * @param callBacks Callbacks
+     */
+    void revokeTokenAsync(AccessToken.Revoke.Request request, final ICallBacks callBacks) {
         Call<ResponseBody> call = mApiInterface.revokeToken(request.getQueryParams());
 
         Callback<ResponseBody> callback = new Callback<ResponseBody>() {
@@ -149,14 +181,13 @@ class RestClient {
         call.enqueue(callback);
     }
 
-
     /**
      * Method for checking network connection
      *
      * @param context - application context
      * @return true - device online
      */
-    public static boolean isDeviceOnline(Context context) {
+    static boolean isDeviceOnline(Context context) {
         ConnectivityManager connMngr = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo netInfo = connMngr.getActiveNetworkInfo();
         return (netInfo != null && netInfo.isConnected());

@@ -29,13 +29,10 @@ import android.widget.ProgressBar;
  * #MobileDevPro
  */
 
-public class YoutubeAuthActivity extends AppCompatActivity {
+class YoutubeAuthActivity extends AppCompatActivity {
 
-    public static final int REQUEST_CODE = 9999;
     public static final String KEY_APP_CLIENT_ID = "key.app.client.id"; //value from google console -> OAuth 2.0 client IDs -> Client ID
     public static final String KEY_APP_CLIENT_SECRET = "key.app.client.secret"; //value from google console -> OAuth 2.0 client IDs -> Client Secret
-    public static final String KEY_RESULT_TOKEN = "key.result.token";
-    public static final String KEY_RESULT_ERROR = "key.result.error";
 
     public static final String KEY_APP_THEME_RES_ID = "key.app.theme.res.id";
     public static final String KEY_APPBAR_TITLE_RES_ID = "key.app.title.res.id";
@@ -172,10 +169,10 @@ public class YoutubeAuthActivity extends AppCompatActivity {
                         mWebView.setVisibility(View.GONE);
                         mProgressBar.setVisibility(View.VISIBLE);
                         //request access and refresh tokens
-                        YoutubeTokenHelper.getInstance(mAppClientId, mAppClientSecret).exchangeCodeForTokenAsync(
+                        YoutubeAuthManager.getInstance(mAppClientId, mAppClientSecret).exchangeCodeForTokenAsync(
                                 getApplicationContext(),
                                 accessCode,
-                                new YoutubeTokenHelper.ICallbacks() {
+                                new YoutubeAuthManager.ICallbacks() {
                                     @Override
                                     public void onSuccess(String accessToken) {
                                         setSuccessResult(accessToken);
@@ -231,14 +228,14 @@ public class YoutubeAuthActivity extends AppCompatActivity {
      */
     private void setSuccessResult(String token) {
         Intent intent = new Intent();
-        intent.putExtra(KEY_RESULT_TOKEN, token);
+        intent.putExtra(YoutubeAuthManager.KEY_SIGN_IN_RESULT_TOKEN, token);
         setResult(Activity.RESULT_OK, intent);
         finish();
     }
 
     private void setFailedResult(String errMessage) {
         Intent intent = new Intent();
-        intent.putExtra(KEY_RESULT_ERROR, errMessage);
+        intent.putExtra(YoutubeAuthManager.KEY_SIGN_IN_RESULT_ERROR, errMessage);
         setResult(Activity.RESULT_CANCELED, intent);
         finish();
     }
