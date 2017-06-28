@@ -327,7 +327,9 @@ public class YoutubeAuthManager implements IYoutubeAuthManager {
             @Override
             public void onSuccess(int respCode, Object respBody) {
                 preferencesHelper.clearToken();
-                callbacks.onSuccess("");
+                if (callbacks != null) {
+                    callbacks.onSuccess("");
+                }
             }
 
             @Override
